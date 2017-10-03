@@ -13,7 +13,7 @@ import tf.transformations as tfm
 
 from apriltags_ros.msg import AprilTagDetectionArray
 from helper import transformPose, pubFrame, cross2d, lookupTransform, pose2poselist, invPoselist, diffrad
-
+from me212bot.msg import WheelCmdVel
 
 rospy.init_node('apriltag_navi', anonymous=True)
 lr = tf.TransformListener()
@@ -44,7 +44,11 @@ def constant_vel_loop():
         ##wcv.desiredWV_L = ???
         
         ##velcmd_pub.publish(???) 
-        
+        wcv = WheelCmdVel()
+        wcv.desiredWV_R = 0.1
+        wcv.desiredWV_L = 0.2 
+        velcmd_pub.publish(wcv) 
+
         rate.sleep() 
 
 ## apriltag msg handling function (Need to modify)
@@ -53,15 +57,27 @@ def apriltag_callback(data):
     if len(data.detections)!=0:  # check if apriltag is detected
     	detection = data.detections[0]
     	print detection.pose 
-    	if detection.id == 21:   # tag id is the correct one
+        #print 'A'
+    	if detection.id == 21:   
+            print 'detection'
+        # tag id is the correct one
 		# Use the functions in helper.py to do the following 
 		# step 1. convert the pose to poselist Hint: pose data => detection.pose.pose 
 		# step 2. do the matrix manipulation 
 		# step 3. publish the base frame w.r.t the map frame
     		# note: tf listener and broadcaster are initalize in line 19~20
 
+            #mypose=pose2poselist(detection.pose.pose)
+
+            #print mypose
+            #transformPose(mypose)
+            #pubFrame(br, pose=mypose, frame_id='obj', parent_frame_id='map', npub=1)
+
 ## navigation control loop (No need to modify)
+
+
 def navi_loop():
+#def navi_loop():
     velcmd_pub = rospy.Publisher("/cmdvel", WheelCmdVel, queue_size = 1)
     target_pose2d = [0.25, 0, np.pi]
     rate = rospy.Rate(100) # 100hz
